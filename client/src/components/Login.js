@@ -6,7 +6,7 @@ import axios from "../api/axios";
 const LOGIN_URL = "/auth";
 
 const Login = () => {
-  const { setAuth } = useAuth();
+  const { auth, setAuth } = useAuth();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -46,6 +46,7 @@ const Login = () => {
       setUser("");
       setPwd("");
       navigate(from, { replace: true });
+      console.log({ "user":user,"roles": roles,"accessToken": accessToken });
     } catch (err) {
       if (!err?.response) {
         setErrMsg("No Server Response");

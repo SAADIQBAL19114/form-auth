@@ -7,6 +7,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "../api/axios";
 import { Link } from "react-router-dom";
+import Select from "react-select"
 
 const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
@@ -31,6 +32,17 @@ const Register = () => {
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
 
+  const [selectedOptions, setSelectedOptions] = useState();
+
+  const optionList = [
+    { value: "User", label: "User" },
+    { value: "Admin", label: "Admin" },
+    { value: "Editor", label: "Editor" },
+  ];
+  function handleSelect(data) {
+    setSelectedOptions(data);
+  }
+
   useEffect(() => {
     userRef.current.focus();
   }, []);
@@ -50,6 +62,12 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+      const userRoles = [
+        selectedOptions[0]?.value,
+        selectedOptions[1]?.value,
+        selectedOptions[2]?.value,
+      ];
+      console.log("userRoles", userRoles);
     // if button enabled with JS hack
     const v1 = USER_REGEX.test(user);
     const v2 = PWD_REGEX.test(pwd);
@@ -60,7 +78,7 @@ const Register = () => {
     try {
       const response = await axios.post(
         REGISTER_URL,
-        JSON.stringify({ user, pwd }),
+        JSON.stringify({ user, pwd, roles: userRoles }),
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
@@ -84,6 +102,18 @@ const Register = () => {
       }
       errRef.current.focus();
     }
+  };
+
+  const customStyles = {
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isSelected ? "#007bff" : "white",
+      color: state.isSelected ? "white" : "black",
+      ":hover": {
+        backgroundColor: "#007bff",
+        color: "white",
+      },
+    }),
   };
 
   return (
@@ -216,6 +246,15 @@ const Register = () => {
               Must match the first password input field.
             </p>
 
+            <label htmlFor="roles">Select role</label>
+            <Select
+              options={optionList}
+              placeholder="Select Role "
+              value={selectedOptions}
+              onChange={handleSelect}
+              isMulti
+              styles={customStyles}
+            />
             <button
               disabled={!validName || !validPwd || !validMatch ? true : false}
             >
